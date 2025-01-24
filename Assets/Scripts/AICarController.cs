@@ -8,7 +8,7 @@ public class AICarController : MonoBehaviour
     public int currentWaypointIndex;
     public float currentSteerAngle;
     public float motorForce = 650f;
-    private float brakeForce = 4000f;
+    public float brakeForce = 4000f;
     public float maxSteerAngle = 45f;
     public float throttleInput = 1f;
 
@@ -38,7 +38,7 @@ public class AICarController : MonoBehaviour
         ApplyMotor();
         ApplySteering();
         UpdateWheelVisuals();
-        //Debug.DrawRay(transform.position, waypoints[currentWaypointIndex].position - transform.position, Color.yellow);
+        Debug.DrawRay(transform.position, waypoints[currentWaypointIndex].position - transform.position, Color.yellow);
     }
 
     private void FollowWaypoints()
@@ -137,6 +137,7 @@ public class AICarController : MonoBehaviour
 
     private void ApplyBrakes()
     {
+        rb.constraints = RigidbodyConstraints.FreezeRotationZ;
         // Apply brake force to all wheels
         frontRightWheelCollider.brakeTorque = brakeForce;
         frontLeftWheelCollider.brakeTorque = brakeForce;
@@ -146,6 +147,7 @@ public class AICarController : MonoBehaviour
 
     private void StopBrakes()
     {
+        rb.constraints = RigidbodyConstraints.None;
         frontRightWheelCollider.brakeTorque = 0f;
         frontLeftWheelCollider.brakeTorque = 0f;
         rearLeftWheelCollider.brakeTorque = 0f;
