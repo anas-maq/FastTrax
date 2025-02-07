@@ -45,12 +45,11 @@ public class AICarController : MonoBehaviour
     {
         if (currentWaypointIndex >= waypoints.Count)
         {
-            return; // No waypoints left
+            return; 
         }
 
         Vector3 targetDir = waypoints[currentWaypointIndex].position - transform.position;
         float angle = Vector3.SignedAngle( transform.forward, targetDir, Vector3.up);
-        //Debug.Log(angle);
         currentSteerAngle = Mathf.Clamp(angle, -maxSteerAngle, maxSteerAngle);
 
         if (Vector3.Distance(transform.position, waypoints[currentWaypointIndex].position) < waypointRange)
@@ -83,7 +82,6 @@ public class AICarController : MonoBehaviour
 
     private void ApplyMotor()
     {
-        // Apply motor force to all wheels
         foreach (WheelCollider wheel in GetComponentsInChildren<WheelCollider>())
         {
             wheel.motorTorque = throttleInput * motorForce;
@@ -92,18 +90,15 @@ public class AICarController : MonoBehaviour
 
     private void ApplySteering()
     {
-        // Apply steering angle to front wheels
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
 
-        // Apply steering angle to visual wheels
         frontLeftWheelTransform.localEulerAngles = new Vector3(0, currentSteerAngle, 0);
         frontRightWheelTransform.localEulerAngles = new Vector3(0, currentSteerAngle, 0);
     }
 
     private void UpdateWheelVisuals()
     {
-        // Update visual wheel rotation and position
         UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform);
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
         UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
@@ -138,7 +133,7 @@ public class AICarController : MonoBehaviour
     private void ApplyBrakes()
     {
         rb.constraints = RigidbodyConstraints.FreezeRotationZ;
-        // Apply brake force to all wheels
+
         frontRightWheelCollider.brakeTorque = brakeForce;
         frontLeftWheelCollider.brakeTorque = brakeForce;
         rearLeftWheelCollider.brakeTorque = brakeForce;
