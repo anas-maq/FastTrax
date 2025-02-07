@@ -18,24 +18,40 @@ public class CarController : MonoBehaviour
     [SerializeField] private Transform frontLeftWheelTransform, frontRightWheelTransform;
     [SerializeField] private Transform rearLeftWheelTransform, rearRightWheelTransform;
 
-    private void FixedUpdate() 
+    // Audio
+    [SerializeField] private AudioSource engineAudioSource;
+    [SerializeField] private float minPitch = 0.5f, maxPitch = 2.0f;
+    [SerializeField] private float minVolume = 0.3f, maxVolume = 1.0f;
+
+    private Rigidbody rb;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+
+        if (engineAudioSource == null)
+        {
+            Debug.LogError("AudioSource not assigned.");
+        }
+    }
+
+    private void FixedUpdate()
     {
         GetInput();
         HandleMotor();
         HandleSteering();
         UpdateWheels();
+        UpdateEngineSound();
     }
 
-    private void GetInput() 
+    private void GetInput()
     {
         horizontalInput = Input.GetAxis("Horizontal");
-
         verticalInput = Input.GetAxis("Vertical");
-
         isBreaking = Input.GetKey(KeyCode.Space);
     }
 
-    private void HandleMotor() 
+    private void HandleMotor()
     {
         frontLeftWheelCollider.motorTorque = verticalInput * motorForce;
         frontRightWheelCollider.motorTorque = verticalInput * motorForce;
@@ -43,7 +59,7 @@ public class CarController : MonoBehaviour
         ApplyBreaking();
     }
 
-    private void ApplyBreaking() 
+    private void ApplyBreaking()
     {
         frontRightWheelCollider.brakeTorque = currentbreakForce;
         frontLeftWheelCollider.brakeTorque = currentbreakForce;
@@ -51,14 +67,14 @@ public class CarController : MonoBehaviour
         rearRightWheelCollider.brakeTorque = currentbreakForce;
     }
 
-    private void HandleSteering() 
+    private void HandleSteering()
     {
         currentSteerAngle = maxSteerAngle * horizontalInput;
         frontLeftWheelCollider.steerAngle = currentSteerAngle;
         frontRightWheelCollider.steerAngle = currentSteerAngle;
     }
 
-    private void UpdateWheels() 
+    private void UpdateWheels()
     {
         UpdateSingleWheel(frontLeftWheelCollider, frontLeftWheelTransform);
         UpdateSingleWheel(frontRightWheelCollider, frontRightWheelTransform);
@@ -66,12 +82,23 @@ public class CarController : MonoBehaviour
         UpdateSingleWheel(rearLeftWheelCollider, rearLeftWheelTransform);
     }
 
-    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform) 
+    private void UpdateSingleWheel(WheelCollider wheelCollider, Transform wheelTransform)
     {
         Vector3 pos;
-        Quaternion rot; 
+        Quaternion rot;
         wheelCollider.GetWorldPose(out pos, out rot);
         wheelTransform.rotation = rot;
         wheelTransform.position = pos;
+    }
+
+    private void UpdateEngineSound()
+    {
+        if (engineAudioSource == null) return;
+
+        float speed = rb.velocity.magnitude;
+        float normalizedSpeed = Mathf.InverseLerp(0, 50, speed);
+
+        engineAudioSource.pitch = Mathf.Lerp(minPitch, maxPitch, normalizedSpeed);
+        engineAudioSource.volume = Mathf.Lerp(minVolume, maxVolume, normalizedSpeed);
     }
 }
